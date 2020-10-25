@@ -2,12 +2,7 @@
  * Helpers.
  */
 
-var s = 1000;
-var m = s * 60;
-var h = m * 60;
-var d = h * 24;
-var w = d * 7;
-var y = d * 365.25;
+const s = 1000, m = s * 60, h = m * 60, d = h * 24, w = d * 7, y = d * 365.25;
 
 /**
  * Parse or format the given `val`.
@@ -23,140 +18,101 @@ var y = d * 365.25;
  * @api public
  */
 
-module.exports = function(val, options) {
-  options = options || {};
-  var type = typeof val;
-  if (type === 'string' && val.length > 0) {
-    return parse(val);
-  } else if (type === 'number' && isFinite(val)) {
-    return options.long ? fmtLong(val) : fmtShort(val);
-  }
-  throw new Error(
-    'val is not a non-empty string or a valid number. val=' +
-      JSON.stringify(val)
-  );
+module.exports = (val, options) => {
+    const type = typeof val;
+    if (type === 'string' && val.length > 0) return parse(val);
+    else if (type === 'number' && isFinite(val)) return (options || {}).long ? fmtLong(val) : fmtShort(val);
+    throw new Error(
+        'val is not a non-empty string or a valid number. val=' +
+        JSON.stringify(val)
+    );
 };
 
 /**
  * Parse the given `str` and return milliseconds.
  *
- * @param {String} str
+ * @param {String} e
  * @return {Number}
  * @api private
  */
-
-function parse(str) {
-  str = String(str);
-  if (str.length > 100) {
-    return;
-  }
-  var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
-    str
-  );
-  if (!match) {
-    return;
-  }
-  var n = parseFloat(match[1]);
-  var type = (match[2] || 'ms').toLowerCase();
-  switch (type) {
-    case 'years':
-    case 'year':
-    case 'yrs':
-    case 'yr':
-    case 'y':
-      return n * y;
-    case 'weeks':
-    case 'week':
-    case 'w':
-      return n * w;
-    case 'days':
-    case 'day':
-    case 'd':
-      return n * d;
-    case 'hours':
-    case 'hour':
-    case 'hrs':
-    case 'hr':
-    case 'h':
-      return n * h;
-    case 'minutes':
-    case 'minute':
-    case 'mins':
-    case 'min':
-    case 'm':
-      return n * m;
-    case 'seconds':
-    case 'second':
-    case 'secs':
-    case 'sec':
-    case 's':
-      return n * s;
-    case 'milliseconds':
-    case 'millisecond':
-    case 'msecs':
-    case 'msec':
-    case 'ms':
-      return n;
-    default:
-      return undefined;
-  }
-}
+const parse = (e) => {
+    if ((e = String(e)).length > 100) return undefined;
+    const c = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(e);
+    if (!c) return undefined;
+    const a = parseFloat(c[1]);
+    switch ((c[2] || "ms").toLowerCase()) {
+        case "years":
+        case "year":
+        case "yrs":
+        case "yr":
+        case "y":
+            return a * y;
+        case "weeks":
+        case "week":
+        case "w":
+            return a * w;
+        case "days":
+        case "day":
+        case "d":
+            return a * d;
+        case "hours":
+        case "hour":
+        case "hrs":
+        case "hr":
+        case "h":
+            return a * h;
+        case "minutes":
+        case "minute":
+        case "mins":
+        case "min":
+        case "m":
+            return a * m;
+        case "seconds":
+        case "second":
+        case "secs":
+        case "sec":
+        case "s":
+            return a * s;
+        case "milliseconds":
+        case "millisecond":
+        case "msecs":
+        case "msec":
+        case "ms":
+            return a;
+        default:
+            return undefined;
+    }
+};
 
 /**
  * Short format for `ms`.
  *
- * @param {Number} ms
+ * @param {Number} t
  * @return {String}
  * @api private
  */
 
-function fmtShort(ms) {
-  var msAbs = Math.abs(ms);
-  if (msAbs >= d) {
-    return Math.round(ms / d) + 'd';
-  }
-  if (msAbs >= h) {
-    return Math.round(ms / h) + 'h';
-  }
-  if (msAbs >= m) {
-    return Math.round(ms / m) + 'm';
-  }
-  if (msAbs >= s) {
-    return Math.round(ms / s) + 's';
-  }
-  return ms + 'ms';
+const fmtShort = t => {
+    const r = Math.abs(t);
+    return r >= d ? Math.round(t / d) + "d" : r >= h ? Math.round(t / h) + "h" : r >= m ? Math.round(t / m) + "m" : r >= s ? Math.round(t / s) + "s" : t + "ms";
 }
 
 /**
  * Long format for `ms`.
  *
- * @param {Number} ms
+ * @param {Number} a
  * @return {String}
  * @api private
  */
 
-function fmtLong(ms) {
-  var msAbs = Math.abs(ms);
-  if (msAbs >= d) {
-    return plural(ms, msAbs, d, 'day');
-  }
-  if (msAbs >= h) {
-    return plural(ms, msAbs, h, 'hour');
-  }
-  if (msAbs >= m) {
-    return plural(ms, msAbs, m, 'minute');
-  }
-  if (msAbs >= s) {
-    return plural(ms, msAbs, s, 'second');
-  }
-  return ms + ' ms';
+const fmtLong = a => {
+    const l = Math.abs(a);
+    return l >= d ? plural(a, l, d, "day") : l >= h ? plural(a, l, h, "hour") : l >= m ? plural(a, l, m, "minute") : l >= s ? plural(a, l, s, "second") : a + " ms"
 }
 
 /**
  * Pluralization helper.
  */
 
-function plural(ms, msAbs, n, name) {
-  var isPlural = msAbs >= n * 1.5;
-  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
-}
+const plural = (ms, msAbs, n, name) => Math.round(ms / n) + ' ' + name + (msAbs >= n * 1.5 ? 's' : '');
+
